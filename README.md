@@ -147,13 +147,6 @@ service cloud.firestore {
 
 O projeto usa variáveis CSS do ShadCN para temas. Você pode personalizar as cores editando o arquivo `src/index.css`.
 
-## 📝 Licença
-
-Este projeto é de código aberto e está disponível para uso pessoal e comercial.
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
 
 ## 📧 Suporte
 
