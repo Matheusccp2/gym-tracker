@@ -59,7 +59,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
                 Nenhum exercício adicionado. Clique em "Adicionar Exercício" para começar.
               </p>
             ) : (
-              workout.exercises.map((exercise, index) => (
+              workout.exercises.map((exercise) => (
                 <div
                   key={exercise.id}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-md"
