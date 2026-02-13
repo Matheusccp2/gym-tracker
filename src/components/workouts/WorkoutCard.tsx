@@ -1,14 +1,16 @@
 import React from 'react';
-import { Workout } from '@/types';
+import { Workout, Exercise } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import ExerciseList from '@/components/exercise-list';
 
 interface WorkoutCardProps {
   workout: Workout;
   onDelete: (id: string) => void;
   onToggle: () => void;
   isExpanded: boolean;
+  onUpdateExercises: (workoutId: string, exercises: Exercise[]) => void;
 }
 
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({
@@ -16,6 +18,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   onDelete,
   onToggle,
   isExpanded,
+  onUpdateExercises,
 }) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -53,29 +56,10 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
       </CardHeader>
       {isExpanded && (
         <CardContent className="pt-0">
-          <div className="space-y-2">
-            {workout.exercises.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhum exercício adicionado. Clique em "Adicionar Exercício" para começar.
-              </p>
-            ) : (
-              workout.exercises.map((exercise) => (
-                <div
-                  key={exercise.id}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-md"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{exercise.name}</p>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{exercise.sets} séries</span>
-                    <span>{exercise.reps} repetições</span>
-                    <span>{exercise.weight}kg</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <ExerciseList
+            exercises={workout.exercises}
+            onUpdate={(exercises) => onUpdateExercises(workout.id, exercises)}
+          />
         </CardContent>
       )}
     </Card>

@@ -35,6 +35,16 @@ export const Dashboard: React.FC = () => {
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(
     new Set(),
   );
+  const handleUpdateWorkoutExercises = (workoutId: string, exercises: Exercise[]) => {
+  // Atualizar o treino com os novos exercícios
+  const updatedWorkouts = workouts.map(w =>
+    w.id === workoutId ? { ...w, exercises } : w
+  );
+  
+  setWorkouts(updatedWorkouts);
+  // Se estiver usando API, chame aqui
+  // await updateWorkout(workoutId, { exercises });
+};
 
   useEffect(() => {
     loadWorkouts();
@@ -233,6 +243,7 @@ export const Dashboard: React.FC = () => {
                       onDelete={handleDeleteWorkout}
                       onToggle={() => toggleWorkoutExpansion(workout.id)}
                       isExpanded={expandedWorkouts.has(workout.id)}
+                      onUpdateExercises={handleUpdateWorkoutExercises}
                     />
                     {expandedWorkouts.has(workout.id) && (
                       <div className="mt-2 pl-4">
