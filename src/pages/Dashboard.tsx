@@ -245,21 +245,6 @@ export const Dashboard: React.FC = () => {
                       isExpanded={expandedWorkouts.has(workout.id)}
                       onUpdateExercises={handleUpdateWorkoutExercises}
                     />
-                    {expandedWorkouts.has(workout.id) && (
-                      <div className="mt-2 pl-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedWorkoutId(workout.id);
-                            setAddExerciseOpen(true);
-                          }}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Adicionar Exercício
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
