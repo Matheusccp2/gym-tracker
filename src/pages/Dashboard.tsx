@@ -18,6 +18,8 @@ import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Plus, LogOut } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export const Dashboard: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -35,16 +37,37 @@ export const Dashboard: React.FC = () => {
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(
     new Set(),
   );
-  const handleUpdateWorkoutExercises = (workoutId: string, exercises: Exercise[]) => {
-  // Atualizar o treino com os novos exercícios
-  const updatedWorkouts = workouts.map(w =>
-    w.id === workoutId ? { ...w, exercises } : w
-  );
   
-  setWorkouts(updatedWorkouts);
-  // Se estiver usando API, chame aqui
-  // await updateWorkout(workoutId, { exercises });
-};
+  const handleUpdateWorkoutExercises = async (
+    workoutId: string,
+    exercises: Exercise[],
+  ) => {
+    if (!currentUser) return;
+
+    try {
+      // 1. Atualizar estado local IMEDIATAMENTE (UI responsiva)
+      setWorkouts((prevWorkouts) =>
+        prevWorkouts.map((w) => (w.id === workoutId ? { ...w, exercises } : w)),
+      );
+
+      // 2. Buscar o workout completo
+      const workout = workouts.find((w) => w.id === workoutId);
+      if (!workout) {
+        console.error("Workout não encontrado:", workoutId);
+        return;
+      }
+
+      await updateWorkout(workoutId, workout.name, exercises);
+      await loadWorkouts();
+      await loadSchedule();
+    } catch (error) {
+      console.error("❌ Erro ao salvar exercícios:", error);
+      alert("Erro ao salvar exercícios. Tente novamente.");
+
+      // Reverter estado local em caso de erro
+      await loadWorkouts();
+    }
+  };
 
   useEffect(() => {
     loadWorkouts();
@@ -101,11 +124,20 @@ export const Dashboard: React.FC = () => {
     if (!confirm("Tem certeza que deseja excluir este treino?")) return;
 
     try {
+      // 1. Atualizar UI imediatamente
+      setWorkouts((prevWorkouts) =>
+        prevWorkouts.filter((w) => w.id !== workoutId),
+      );
+      // 2. Deletar no Firebase
       await deleteWorkout(workoutId);
+      // 3. Recarregar para sincronizar
       await loadWorkouts();
       await loadSchedule();
     } catch (error) {
-      console.error("Error deleting workout:", error);
+      console.error("❌ Erro ao deletar treino:", error);
+      alert("Erro ao deletar treino. Tente novamente.");
+      // Reverter estado em caso de erro
+      await loadWorkouts();
     }
   };
 
