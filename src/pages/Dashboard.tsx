@@ -204,7 +204,7 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-[95vw] container mx-auto px-4 py-8">
         <Tabs defaultValue="workouts" className="space-y-6">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
             <TabsTrigger value="workouts">Meus Treinos</TabsTrigger>
