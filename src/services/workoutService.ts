@@ -75,25 +75,36 @@ export const scheduleWorkout = async (
   workoutId: string,
   dayOfWeek: number
 ): Promise<void> => {
-  // First, check if there's already a workout scheduled for this day
-  const q = query(
-    collection(db, 'scheduledWorkouts'),
-    where('userId', '==', userId),
-    where('dayOfWeek', '==', dayOfWeek)
-  );
-  const querySnapshot = await getDocs(q);
+  try {
+    // First, check if there's already a workout scheduled for this day
+    const q = query(
+      collection(db, 'scheduledWorkouts'),
+      where('userId', '==', userId),
+      where('dayOfWeek', '==', dayOfWeek)
+    );
+    const querySnapshot = await getDocs(q);
 
-  // Delete existing scheduled workout for this day
-  const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
-  await Promise.all(deletePromises);
+    // Delete existing scheduled workout for this day
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
 
-  // Add new scheduled workout
-  await addDoc(collection(db, 'scheduledWorkouts'), {
-    userId,
-    workoutId,
-    dayOfWeek,
-    createdAt: Timestamp.now(),
-  });
+    // ✅ CORREÇÃO - Não adicionar se workoutId estiver vazio
+    if (workoutId && workoutId.trim() !== '') {
+      // Add new scheduled workout
+      await addDoc(collection(db, 'scheduledWorkouts'), {
+        userId,
+        workoutId,
+        dayOfWeek,
+        createdAt: Timestamp.now(),
+      });
+      console.log('✅ Treino agendado com sucesso!');
+    } else {
+      console.log('✅ Treino removido da agenda');
+    }
+  } catch (error) {
+    console.error('❌ Erro ao agendar treino:', error);
+    throw error;
+  }
 };
 
 export const getScheduledWorkouts = async (
@@ -127,17 +138,29 @@ export const removeScheduledWorkout = async (
 };
 
 export const getWorkoutById = async (workoutId: string): Promise<Workout | null> => {
-  const docRef = doc(db, 'workouts', workoutId);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    return {
-      id: docSnap.id,
-      ...docSnap.data(),
-      createdAt: docSnap.data().createdAt.toDate(),
-      updatedAt: docSnap.data().updatedAt.toDate(),
-    } as Workout;
+  // ✅ VALIDAÇÃO - Verificar se workoutId é válido
+  if (!workoutId || workoutId.trim() === '' || workoutId === 'workouts') {
+    console.warn('⚠️ workoutId inválido:', workoutId);
+    return null;
   }
 
-  return null;
+  try {
+    const docRef = doc(db, 'workouts', workoutId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return {
+        id: docSnap.id,
+        ...docSnap.data(),
+        createdAt: docSnap.data().createdAt.toDate(),
+        updatedAt: docSnap.data().updatedAt.toDate(),
+      } as Workout;
+    }
+
+    console.warn('⚠️ Workout não encontrado:', workoutId);
+    return null;
+  } catch (error) {
+    console.error('❌ Erro ao buscar workout:', error);
+    return null;
+  }
 };
