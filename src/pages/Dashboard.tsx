@@ -18,8 +18,6 @@ import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Plus, LogOut } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 export const Dashboard: React.FC = () => {
   const { currentUser, logout } = useAuth();
